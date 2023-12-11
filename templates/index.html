@@ -10,6 +10,7 @@
     <table>
         <tr>
             <th></th>
+            <th>Id</th>
             <th>Product</th>
             <th>Category</th>
             <th>Price</th>
@@ -18,8 +19,14 @@
         {% for entry in products %}
         <tr>
             <td> <a href="{{ url_for('add_to_cart', product_id=entry.id, quantity=1) }}"> Add to Cart</a> </td>
+            <td>{{ entry.id }}</td>
             <td>{{ entry.title }}</td>
-            <td>{{ entry.category_value }}</td>
+            {% set matching_category = categories | selectattr('id', 'equalto', entry.category_id) | list %}
+            {% if matching_category %}
+            <td>{{ matching_category[0].title }}</td>
+            {% else %}
+                <td>No category found</td>
+            {% endif %}
             <td>{{ entry.price }}</td>
             <td>{{ entry.amount_in_stock }}</td>
         </tr>

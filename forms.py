@@ -6,16 +6,16 @@ from models import Product
 class NewProductForm(FlaskForm):
     title = StringField('Title', [validators.DataRequired()])
     category = SelectField('Category', [validators.DataRequired()])
-    amount = IntegerField('Amount', [validators.DataRequired()])
-    price = DecimalField('Price', [validators.DataRequired()])
+    amount = IntegerField('Amount', [validators.NumberRange(min=0)])
+    price = DecimalField('Price', [validators.NumberRange(min=0)])
     submit = SubmitField('Add Product', [validators.DataRequired()])
 
 
 class UpdateProductForm(FlaskForm):
     title = StringField('Title', [validators.DataRequired()], )
     category = SelectField('Category', [validators.DataRequired()])
-    amount = IntegerField('Amount', [validators.DataRequired()])
-    price = DecimalField('Price', [validators.DataRequired()])
+    amount = IntegerField('Amount', [validators.NumberRange(min=0)])
+    price = DecimalField('Price', [validators.NumberRange(min=0)])
     submit = SubmitField('Save', [validators.DataRequired()])
 
 

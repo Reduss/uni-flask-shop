@@ -5,8 +5,8 @@ from flask import current_app
 from sqlalchemy import create_engine
 
 from dao.dao import DAO
-from dao.dao_mysql import ProductDAOMySQL, CategoryDAOMySQL
-from dao.dao_mongo import ProductDAOMongo, CategoryDAOMongo
+from dao.dao_mysql import ProductDAOMySQL, CategoryDAOMySQL, CustomerDAOMySQL, OrderDAOMySQL, OrderItemDAOMySQL
+from dao.dao_mongo import ProductDAOMongo, CategoryDAOMongo, CustomerDAOMongo, OrderDAOMongo, OrderItemDAOMongo
 from config import Config
 
 
@@ -31,16 +31,19 @@ class AbsDAOFactory(ABC):
 
 class MySQLDAOFactory(AbsDAOFactory):
     def get_customer_dao(self):
-        pass
+        return CustomerDAOMySQL()
     
     def get_product_dao(self):
         return ProductDAOMySQL()
 
     def get_order_dao(self):
-        pass
+        return OrderDAOMySQL()
     
     def get_category_dao(self):
         return CategoryDAOMySQL()
+
+    def get_order_item_dao(self):
+        return OrderItemDAOMySQL()
 
 
 class MongoDAOFactory(AbsDAOFactory):
@@ -48,17 +51,19 @@ class MongoDAOFactory(AbsDAOFactory):
         super().__init__()
 
     def get_customer_dao(self):
-        pass
+        return CustomerDAOMongo()
     
     def get_product_dao(self):
         return ProductDAOMongo()
 
     def get_order_dao(self):
-        pass
+        return OrderDAOMongo
     
     def get_category_dao(self):
         return CategoryDAOMongo()
-
+    
+    def get_order_item_dao(self):
+        return OrderDAOMongo()
 
 class DAOFactory():
     def __init__(self, factory) -> None:
@@ -80,3 +85,6 @@ class DAOFactory():
     
     def get_category_dao(self):
         return self.factory.get_category_dao()
+    
+    def get_order_item_dao(self):
+        return self.factory.get_order_item_dao()

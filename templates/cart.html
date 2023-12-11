@@ -27,6 +27,7 @@
             <th>Category</th>
             <th>Price</th>
             <th>Amount</th>
+            <th>Amount available</th>
         </tr>
         {% for prod, amount in cart.get_items() %}
         <tr>
@@ -36,6 +37,12 @@
             <td>{{ prod.category_value }}</td>
             <td>{{ prod.price }}</td>
             <td>{{ amount }}</td>
+            {% set stock_amount = products |selectattr('id', 'equalto', prod.id) | list %}
+            {% if stock_amount %}
+                <td>{{ stock_amount[0].amount_in_stock }}</td>
+            {% else %}
+                <td>No stock amount found</td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

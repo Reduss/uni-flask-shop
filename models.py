@@ -8,7 +8,7 @@ class Product:
         self.category_value = category_value
     
     def __repr__(self) -> str:
-        return f'Product object. Id: {self.id}; title: {self.title}; price: {self.price}'
+        return f'Product object. Id: {self.id}; title: {self.title}; price: {self.price}; amount: {self.amount_in_stock}:'
     
     def __eq__(self, other):
         if isinstance(other, Product):
@@ -34,6 +34,7 @@ class Customer:
         self.last_name = l_name
         self.phone_num = phone_num
         self.address = address
+    
 
 class Order:
     def __init__(self, id, customer_id, status_id, order_date, total_price) -> None:
@@ -50,7 +51,11 @@ class OrderStatus:
 
 class OrderItem:
     def __init__(self, id, order_id, prod_id, amount, price) -> None:
-        pass
+        self.id = id
+        self.order_id = order_id
+        self.product_id = prod_id
+        self.amount = amount
+        self.price = price
 
 
 class Cart():

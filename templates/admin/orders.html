@@ -1,5 +1,69 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-    <p>orders</p>
+    <table>
+        <tr>
+            <th>Order Id</th>
+            <th>Customer id</th>
+            <th>Customer first name</th>
+            <th>Customer last name</th>
+            <th>Customer phone</th>
+            <th>Customer address</th>
+            <th>Status id</th>
+            <th>Order date</th>
+            <th>Total price</th>
+            <th>Products</th>
+        </tr>
+        {% for entry in orders %}
+        <tr>
+            <td>{{ entry.id }}</td>
+            {% set matching_customers = customers | selectattr('id', 'equalto', entry.customer_id) | list %}
+                {% if matching_customers %}
+                    {% for c in matching_customers %}
+                        <td>{{ c.id }}</td>
+                        <td>{{ c.first_name }}</td>
+                        <td>{{ c.last_name }}</td>
+                        <td>{{ c.phone_num }}</td>
+                        <td>{{ c.address }}</td>
+                    {% endfor %}
+                {% else %}
+                    <td>No customer found</td>
+                {% endif %}
+            <td>{{ entry.status_id }}</td>
+            <td>{{ entry.order_date }}</td>
+            <td>{{ entry.total_price }}</td>
+            <td>
+                <table>
+                    <tr>
+                        <th>Product Id</th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Amount</th>
+                    </tr>
+                    {% set matching_order_id = order_items | selectattr('order_id', 'equalto', entry.id) | list %}
+                    {% if matching_order_id %}
+                        {% for match in matching_order_id %}
+                            <tr>
+                                <td>{{ match.product_id }}</td>
+                                {% set matching_prod = products |selectattr('id', 'equalto', match.product_id) | list %}
+                                {% if matching_prod %}
+                                    <td>{{ matching_prod[0].title }}</td>
+                                    <td>{{ match.price }}</td>
+                                    <td>{{ match.amount }}</td>
+                                {% else %}
+                                    <td>No product found</td>
+                                {% endif %}
+                            </tr>
+                            
+
+                    {% endfor %}
+                    {% else %}
+                        <td>No items found</td>
+                    {% endif %}
+                    
+                </table>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock content %}
