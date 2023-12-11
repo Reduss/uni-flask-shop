@@ -39,7 +39,7 @@
             <td>{{ amount }}</td>
             {% set stock_amount = products |selectattr('id', 'equalto', prod.id) | list %}
             {% if stock_amount %}
-                <td>{{ stock_amount[0].amount_in_stock }}</td>
+                <td>{{ stock_amount[0].amount_in_stock - amount }}</td>
             {% else %}
                 <td>No stock amount found</td>
             {% endif %}
