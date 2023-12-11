@@ -12,7 +12,7 @@ class NewProductForm(FlaskForm):
 
 
 class UpdateProductForm(FlaskForm):
-    title = StringField('Title', [validators.DataRequired()], )
+    title = StringField('Title', [validators.DataRequired() ], )
     category = SelectField('Category', [validators.DataRequired()])
     amount = IntegerField('Amount', [validators.NumberRange(min=0)])
     price = DecimalField('Price', [validators.NumberRange(min=0)])

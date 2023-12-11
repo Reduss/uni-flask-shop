@@ -27,10 +27,6 @@
         </tr>
         {% for entry in products %}
         <tr>
-            <!--
-                <td> <button id='{{ entry.id }}' onclick='redirectToPage(event)'>Update</button> </td>
-
-            -->
             <td> <a href="{{ url_for('admin_product_update', product_id=entry.id) }}"> Update</a> </td>
             <td>{{ entry.id }}</td>
             <td>{{ entry.title }}</td>
@@ -46,11 +42,4 @@
         </tr>
         {% endfor %}
     </table>
-
-    <script>
-        function redirectToPage(event) {
-            var id = event.target.id;
-            window.location.href = 'http://127.0.0.1:5000/admin/products/update/' + id;
-        }
-    </script>
 {% endblock content %}

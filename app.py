@@ -9,28 +9,23 @@ from config import Config
 from db import get_mysql_engine, get_mongo_client
 
 
-#
-# init
-#
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
-#
-# dao init
-#
+
 factory = DAOFactory(FactoryType.MYSQL)
 cart = Cart()
-p_dao = factory.get_product_dao()
+product_dao = factory.get_product_dao()
 category_dao = factory.get_category_dao()
 customer_dao = factory.get_customer_dao()
 order_dao = factory.get_order_dao()
 order_item_dao = factory.get_order_item_dao()
-#
-#   routs
-#
+
+
 @app.route('/')
 def index():
-    prods = p_dao.get_all()
+    prods = product_dao.get_all()
     cats = category_dao.get_all()
     available_prods = list(filter(lambda p: p.amount_in_stock > 0, prods))
     
@@ -40,7 +35,7 @@ def index():
 @app.route('/cart', methods = ['GET', 'POST'])
 def cart_view():
     cust_form = CustomerInfoForm()
-    prods = p_dao.get_all()
+    prods = product_dao.get_all()
     print([l for l in cart.prods])
     if cust_form.validate_on_submit() and cart.prods.__len__() > 0:        
         c = Customer(
@@ -63,21 +58,21 @@ def cart_view():
 
 @app.route('/add_to_cart/<int:product_id>/<int:quantity>')
 def add_to_cart(product_id, quantity):
-    cart.add_product(p_dao.get(product_id), quantity)
+    cart.add_product(product_dao.get(product_id), quantity)
     return redirect(url_for('index'))
 
 
 @app.route('/cart_inc/<int:product_id>/<int:quantity>')
 def cart_increase_amount(product_id, quantity):
-    cart.inc(p_dao.get(product_id), quantity)
+    cart.inc(product_dao.get(product_id), quantity)
     
     return redirect(url_for('cart_view'))
 
 
 @app.route('/cart_dec/<int:product_id>/<int:quantity>')
 def cart_decrease_amount(product_id, quantity):
-    cart.remove_product(p_dao.get(product_id), quantity)
-    prods = p_dao.get_all()
+    cart.remove_product(product_dao.get(product_id), quantity)
+    prods = product_dao.get_all()
     
     return redirect(url_for('cart_view'))
 
@@ -87,7 +82,7 @@ def admin_index():
     ords = order_dao.get_all()
     ord_its = order_item_dao.get_all()
     customers = customer_dao.get_all()
-    prods = p_dao.get_all()
+    prods = product_dao.get_all()
     print(len(ord_its))
     for p in ord_its:
         print('item')
@@ -100,7 +95,7 @@ def admin_index():
 @app.route('/admin/products', methods = ['GET', 'POST'])
 def admin_products():
     form = NewProductForm()
-    prods = p_dao.get_all()
+    prods = product_dao.get_all()
     cats = category_dao.get_all()
     form.category.choices = [(cat.id, cat.title) for cat in cats or []]
     
@@ -112,7 +107,7 @@ def admin_products():
             category_id=form.category.data,
             amount_in_stock=form.amount.data,
         )
-        p_dao.insert(prod)
+        product_dao.insert(prod)
         return redirect('/admin/products')
     else:
         print(form.errors)
@@ -122,16 +117,17 @@ def admin_products():
 @app.route('/admin/products/update/<int:product_id>', methods = ['GET', 'POST'])
 def admin_product_update(product_id):
     # TODO: fix update
-    prod_to_upd = p_dao.get(product_id)
+    prod_to_upd = product_dao.get(product_id)
     cats = category_dao.get_all()
-    form = UpdateProductForm()
+    form = UpdateProductForm(
+        title = prod_to_upd.title,
+        price = prod_to_upd.price,
+        category = prod_to_upd.category_id,
+        amount = prod_to_upd.amount_in_stock,
+    )
     
     form.category.choices = [(cat.id, cat.title) for cat in cats or []]
     
-    form.title.data = prod_to_upd.title
-    form.price.data = prod_to_upd.price
-    # form.category.data = prod_to_upd.category_id
-    form.amount.data = prod_to_upd.amount_in_stock
     if form.validate_on_submit():
         
         prod = Product(
@@ -141,10 +137,9 @@ def admin_product_update(product_id):
             category_id=form.category.data,
             amount_in_stock=form.amount.data,
         )
-        # TODO: data is not being read from the form !!!!!!!
         print('Printing prod to update')
         print(prod)
-        p_dao.update(product_id, prod)
+        product_dao.update(product_id, prod)
         return redirect('/admin/products')
     else:
         print(form.errors)
@@ -159,10 +154,3 @@ def admin_customers():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-# TODO: mysqldaos impl
-# TODO: order proc
-# TODO: order impl
-# TODO: other views
