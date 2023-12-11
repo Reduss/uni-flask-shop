@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+*.pyw
+*.pyc
+
+# Virtual Environment
+venv/
+ENV/
+
+# VSCode settings
+.vscode/
+
+# Python-specific files
+*.pyc
+*.pyo
+*.pyc
+*.pyz
+*.pyw
+*.pyc
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Debug log
+*.log
+
+# Windows
+Thumbs.db

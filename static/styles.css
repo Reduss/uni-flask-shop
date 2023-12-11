@@ -1,0 +1,30 @@
+body{
+    padding: 5rem;
+}
+
+nav > *{
+    display: flex;
+    gap: 1rem;
+}
+
+li{
+    list-style: none;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 2rem 0 2rem 0;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem 1rem;
+    text-align: left;
+}
+
+form > *{
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}

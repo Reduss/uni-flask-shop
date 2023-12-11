@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+    <h1>Admin - Products</h1>
+    <form method="POST" action="{{ url_for('admin_products') }}">
+        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
+        {{form.title.label}}
+        {{form.title}}
+        {{form.category.label}}
+        {{form.category}}
+        {{form.amount.label}}
+        {{form.amount}}
+        {{form.price.label}}
+        {{form.price}}
+        {{form.submit}}
+    </form>
+    <table>
+        <tr>
+            <th></th>
+            <th>Id</th>
+            <th>Product</th>
+            <th>Category Id</th>
+            <th>Category Value</th>
+            <th>Price</th>
+            <th>Amount available</th>
+        </tr>
+        {% for entry in products %}
+        <tr>
+            <td> <button id='{{ entry.id }}' onclick='redirectToPage(event)'>Update</button> </td>
+            <td>{{ entry.id }}</td>
+            <td>{{ entry.title }}</td>
+            <td>{{ entry.category_id }}</td>
+            <td>{{ entry.category_value }}</td>
+            <td>{{ entry.price }}</td>
+            <td>{{ entry.amount_in_stock }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        function redirectToPage(event) {
+            var id = event.target.id;
+            window.location.href = 'http://127.0.0.1:5000/admin/products/update/' + id;
+        }
+    </script>
+{% endblock content %}

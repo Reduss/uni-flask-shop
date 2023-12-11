@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Cart</h1>
+{% endblock header %}
+
+{% block content %}
+    <form action="{{url_for('cart_view') }}" method="POST">
+        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
+        {{form.f_name.label}}
+        {{form.f_name}}
+        {{form.l_name.label}}
+        {{form.l_name}}
+        {{form.phone.label}}
+        {{form.phone}}
+        {{form.address.label}}
+        {{form.address}}
+        {{form.submit}}
+    </form>
+
+    <table>
+        <tr>
+            <th></th>
+            <th></th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Amount</th>
+        </tr>
+        {% for prod, amount in cart.get_items() %}
+        <tr>
+            <td> <a href="{{ url_for('cart_increase_amount', product_id=prod.id, quantity=1) }}"> Amount+</a> </td>
+            <td> <a href="{{ url_for('cart_decrease_amount', product_id=prod.id, quantity=1) }}"> Amount-</a> </td>
+            <td>{{ prod.title }}</td>
+            <td>{{ prod.category_value }}</td>
+            <td>{{ prod.price }}</td>
+            <td>{{ amount }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock content %}
