@@ -20,26 +20,19 @@
             <th></th>
             <th>Id</th>
             <th>Product</th>
-            <th>Category Id</th>
-            <th>Category Value</th>
+            <th>Category</th>
             <th>Price</th>
             <th>Amount available</th>
         </tr>
         {% for entry in products %}
-        <tr>
-            <td> <a href="{{ url_for('admin_product_update', product_id=entry.id) }}"> Update</a> </td>
-            <td>{{ entry.id }}</td>
-            <td>{{ entry.title }}</td>
-            <td>{{ entry.category_id }}</td>
-            {% set matching_category = categories | selectattr('id', 'equalto', entry.category_id) | list %}
-            {% if matching_category %}
-                <td>{{ matching_category[0].title }}</td>
-            {% else %}
-                <td>No category found</td>
-            {% endif %}
-            <td>{{ entry.price }}</td>
-            <td>{{ entry.amount_in_stock }}</td>
-        </tr>
+            <tr>
+                <td> <a href="{{ url_for('admin_product_update', product_id=entry.id) }}"> Update</a> </td>
+                <td>{{ entry.id }}</td>
+                <td>{{ entry.title }}</td>
+                <td>{{ entry.category }}</td>
+                <td>{{ entry.price }}</td>
+                <td>{{ entry.amount_in_stock }}</td>
+            </tr>
         {% endfor %}
     </table>
 {% endblock content %}

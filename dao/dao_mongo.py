@@ -41,5 +41,5 @@ class OrderItemDAOMongo(DAO):
     pass
 
 
-class StatusDAOMongo(DAO):
+class OrderStatusDAOMongo(DAO):
     pass

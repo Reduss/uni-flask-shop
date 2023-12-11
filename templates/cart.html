@@ -34,7 +34,7 @@
             <td> <a href="{{ url_for('cart_increase_amount', product_id=prod.id, quantity=1) }}"> Amount+</a> </td>
             <td> <a href="{{ url_for('cart_decrease_amount', product_id=prod.id, quantity=1) }}"> Amount-</a> </td>
             <td>{{ prod.title }}</td>
-            <td>{{ prod.category_value }}</td>
+            <td>{{ prod.category }}</td>
             <td>{{ prod.price }}</td>
             <td>{{ amount }}</td>
             {% set stock_amount = products |selectattr('id', 'equalto', prod.id) | list %}

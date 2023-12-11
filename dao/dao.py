@@ -5,7 +5,7 @@ class DAO():
     
     def update(self, id, entity):
         pass
-    
+        
     def delete(self, id):
         pass
     

@@ -1,14 +1,13 @@
 class Product:
-    def __init__(self, id, title, price, category_id, amount_in_stock, category_value='no_value') -> None:
+    def __init__(self, id, title, price, category, amount_in_stock) -> None:
         self.id = id
         self.title = title
         self.price = price
-        self.category_id = category_id
+        self.category = category
         self.amount_in_stock = amount_in_stock
-        self.category_value = category_value
     
     def __repr__(self) -> str:
-        return f'Product object. Id: {self.id}; title: {self.title}; price: {self.price}; amount: {self.amount_in_stock}:'
+        return f'Product object. Id: {self.id}; title: {self.title}; price: {self.price}; stock_amount: {self.amount_in_stock}; category: {self.category};'
     
     def __eq__(self, other):
         if isinstance(other, Product):
@@ -17,6 +16,36 @@ class Product:
     
     def __hash__(self):
         return hash(self.id)
+
+
+class Customer:
+    def __init__(self, id, f_name, l_name, phone_num, address) -> None:
+        self.id = id
+        self.first_name = f_name
+        self.last_name = l_name
+        self.phone_num = phone_num
+        self.address = address
+
+
+class Order:
+    def __init__(self, id, customer, status, order_date, total_price, products={}) -> None:
+        self.id = id
+        self.customer = customer
+        self.status = status
+        self.order_date = order_date
+        self.total_price = total_price
+        self.products = products
+    
+    def __repr__(self) -> str:
+        return f"""Order object. 
+            Id: {self.id}; 
+            status: {self.status}; 
+            date: {self.order_date}; 
+            price: {self.total_price}; 
+            category: {self.category};
+            customer: {self.customer};
+            prods: {self.products}"""
+
 
 class Category:
     def __init__(self, id, title) -> None:
@@ -27,35 +56,10 @@ class Category:
         return f'Category object. Id: {self.id}; Title: {self.title}'
 
 
-class Customer:
-    def __init__(self, id, f_name, l_name, phone_num, address) -> None:
-        self.id = id
-        self.first_name = f_name
-        self.last_name = l_name
-        self.phone_num = phone_num
-        self.address = address
-    
-
-class Order:
-    def __init__(self, id, customer_id, status_id, order_date, total_price) -> None:
-        self.id = id
-        self.customer_id = customer_id
-        self.status_id = status_id
-        self.order_date = order_date
-        self.total_price = total_price
-
 class OrderStatus:
     def __init__(self, id, title) -> None:
         self.id = id
         self.title = title
-
-class OrderItem:
-    def __init__(self, id, order_id, prod_id, amount, price) -> None:
-        self.id = id
-        self.order_id = order_id
-        self.product_id = prod_id
-        self.amount = amount
-        self.price = price
 
 
 class Cart():

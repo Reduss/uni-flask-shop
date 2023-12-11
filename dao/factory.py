@@ -1,13 +1,8 @@
 from enum import Enum
 from abc import ABC, abstractmethod
-from flask_sqlalchemy import SQLAlchemy
-from flask import current_app
-from sqlalchemy import create_engine
 
-from dao.dao import DAO
-from dao.dao_mysql import ProductDAOMySQL, CategoryDAOMySQL, CustomerDAOMySQL, OrderDAOMySQL, OrderItemDAOMySQL
-from dao.dao_mongo import ProductDAOMongo, CategoryDAOMongo, CustomerDAOMongo, OrderDAOMongo, OrderItemDAOMongo
-from config import Config
+from dao.dao_mysql import ProductDAOMySQL, CategoryDAOMySQL, CustomerDAOMySQL, OrderDAOMySQL, OrderStatusDAOMySQL
+from dao.dao_mongo import ProductDAOMongo, CategoryDAOMongo, CustomerDAOMongo, OrderDAOMongo, OrderStatusDAOMongo
 
 
 class FactoryType(Enum):
@@ -41,9 +36,9 @@ class MySQLDAOFactory(AbsDAOFactory):
     
     def get_category_dao(self):
         return CategoryDAOMySQL()
-
-    def get_order_item_dao(self):
-        return OrderItemDAOMySQL()
+    
+    def get_order_status_dao(self):
+        return OrderStatusDAOMySQL()
 
 
 class MongoDAOFactory(AbsDAOFactory):
@@ -62,8 +57,8 @@ class MongoDAOFactory(AbsDAOFactory):
     def get_category_dao(self):
         return CategoryDAOMongo()
     
-    def get_order_item_dao(self):
-        return OrderDAOMongo()
+    def get_order_status_dao(self):
+        return OrderStatusDAOMongo()
 
 class DAOFactory():
     def __init__(self, factory) -> None:
@@ -86,5 +81,5 @@ class DAOFactory():
     def get_category_dao(self):
         return self.factory.get_category_dao()
     
-    def get_order_item_dao(self):
-        return self.factory.get_order_item_dao()
+    def get_order_status_dao(self):
+        return self.factory.get_order_status_dao()
