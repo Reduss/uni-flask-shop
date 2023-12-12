@@ -13,7 +13,7 @@ app.config.from_object(Config)
 
 cart = Cart()
 
-factory = DAOFactory(FactoryType.MONGO)
+factory = DAOFactory(FactoryType.MYSQL)
 product_dao = factory.get_product_dao()
 category_dao = factory.get_category_dao()
 
@@ -21,9 +21,6 @@ customer_dao = factory.get_customer_dao()
 order_dao = factory.get_order_dao()
 status_dao = factory.get_order_status_dao()
 
-mon_f = DAOFactory(FactoryType.MONGO)
-
-prod_dao_mongo = mon_f.get_product_dao()
 
 
 @app.route('/')
@@ -32,14 +29,6 @@ def index():
     available_prods = list(filter(lambda p: p.amount_in_stock > 0, prods))
     
     return render_template('index.html', products=available_prods,)
-
-@app.route('/m')
-def index_mongo():
-    prods = prod_dao_mongo.get_all()
-    available_prods = list(filter(lambda p: p.amount_in_stock > 0, prods))
-    
-    return render_template('index.html', products=available_prods)
-
 
 
 @app.route('/cart', methods = ['GET', 'POST'])
@@ -90,7 +79,6 @@ def cart_decrease_amount(product_id, quantity):
 @app.route('/admin')
 def admin_index():
     orders = order_dao.get_all()
-    print(orders[0].products)
     return render_template('admin/orders.html', orders=orders)
 
 

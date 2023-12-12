@@ -7,14 +7,19 @@ from pymongo import MongoClient
 from pymongo.write_concern import WriteConcern
 from datetime import datetime
 
-class CustomerDAOMongo(DAO):
+class MongoConnection():
+    def __init__(self) -> None:
+        self.client = MongoClient(Config.MONGO_URI)
+        self.db = self.client['sdb_shop']
+        
+
+class CustomerDAOMongo(DAO, MongoConnection):
     def __init__(self) -> None:
         super().__init__()
-        self.db = MongoClient(Config.MONGO_URI)['sdb_shop']
         self.customer_collection = self.db['customer']
     
     def insert(self, customer: Customer):
-        self.customer_collection.insert_one(
+        res = self.customer_collection.insert_one(
             {
                 "first_name": customer.first_name,
                 "last_name": customer.last_name,
@@ -22,6 +27,7 @@ class CustomerDAOMongo(DAO):
                 "addr": customer.address
             }
         )
+        return res
     
     def get_all(self):
         cursor = self.customer_collection.find()
@@ -48,15 +54,14 @@ class CustomerDAOMongo(DAO):
         return cust[0]
 
 
-class ProductDAOMongo(DAO):
+class ProductDAOMongo(DAO, MongoConnection):
     def __init__(self) -> None:
         super().__init__()
-        self.db = MongoClient(Config.MONGO_URI)['sdb_shop']
         self.product_collection = self.db['product']
         self.category_dao = CategoryDAOMongo()
     
     def insert(self, entity):
-        self.product_collection.insert_one(
+        res = self.product_collection.insert_one(
             {
                 "title": entity.title,
                 "price": float(entity.price),
@@ -64,6 +69,7 @@ class ProductDAOMongo(DAO):
                 "category_id": self.category_dao.get_by_title(entity.category).id
             }
         )
+        return res
     
     def update(self, id, entity: Product):
         self.product_collection.update_one(
@@ -110,11 +116,19 @@ class ProductDAOMongo(DAO):
         return prods[0]
 
 
-class CategoryDAOMongo(DAO):
+class CategoryDAOMongo(DAO, MongoConnection):
     def __init__(self) -> None:
         super().__init__()
         self.db = MongoClient(Config.MONGO_URI)['sdb_shop']
         self.category_collection = self.db['category']
+    
+    def insert(self, entity):
+        res = self.category_collection.insert_one(
+            {
+                "title": entity.title,
+            }
+        )
+        return res
     
     def get_all(self):
         cursor = self.category_collection.find()
@@ -144,15 +158,25 @@ class CategoryDAOMongo(DAO):
         return cats[0]
 
 
-class OrderDAOMongo(DAO):
+class OrderDAOMongo(DAO, MongoConnection):
     def __init__(self) -> None:
         super().__init__()
-        self.client = MongoClient(Config.MONGO_URI)
-        self.db = self.client['sdb_shop']
         self.order_collection = self.db['order']
         self.status_dao = OrderStatusDAOMongo()
         self.product_dao = ProductDAOMongo()
         self.customer_dao = CustomerDAOMongo()
+    
+    def insert(self, entity: Order):
+        res = self.order_collection.insert_one(
+            {
+                "customer_id": entity.customer.id,
+                "status_id": entity.status.id,
+                "order_date": entity.date,
+                "total_price": entity.total_price,
+                "products": entity.products,
+            }
+        )
+        return res
     
     def place_order(self,customer: Customer, cart: Cart):
         
@@ -177,28 +201,33 @@ class OrderDAOMongo(DAO):
                             "amount" : v,
                             "price" : k.price,
                         })
-                
-                res = self.order_collection.insert_one(
-                    {
-                        'customer_id': cust_id,
-                        'status_id': self.status_dao.get_by_title("New").id,
-                        'order_date': order_date,
-                        'total_price': total_price,
-                        'products': products
-                    }
-                )
-                
-                # update stock product amount 
-                for k, v in cart.prods.items():
-                    p = Product(
-                        id=k.id,
-                        title=k.title,
-                        price=k.price,
-                        category=k.category,
-                        amount_in_stock=k.amount_in_stock - v,
+                try:
+                    res = self.order_collection.insert_one(
+                        {
+                            'customer_id': cust_id,
+                            'status_id': self.status_dao.get_by_title("New").id,
+                            'order_date': order_date,
+                            'total_price': total_price,
+                            'products': products
+                        }
                     )
-                    self.product_dao.update(k.id, p)
-                
+                except Exception as e:
+                    session.abort_transaction()
+                    print(f'Couldnt create order object: {e}')
+                # update stock product amount 
+                try:
+                    for k, v in cart.prods.items():
+                        p = Product(
+                            id=k.id,
+                            title=k.title,
+                            price=k.price,
+                            category=k.category,
+                            amount_in_stock=k.amount_in_stock - v,
+                        )
+                        self.product_dao.update(k.id, p)
+                except Exception as e:
+                    session.abort_transaction()
+                    print(f'Couldnt update stock amount: {e}')
                 
                 session.commit_transaction()
             except Exception as e:
@@ -234,11 +263,19 @@ class OrderDAOMongo(DAO):
             orders.append(ord)
         return orders
 
-class OrderStatusDAOMongo(DAO):
+
+class OrderStatusDAOMongo(DAO, MongoConnection):
     def __init__(self) -> None:
         super().__init__()
-        self.db = MongoClient(Config.MONGO_URI)['sdb_shop']
         self.status_collection = self.db['order_status']
+    
+    def insert(self, entity):
+        res = self.status_collection.insert_one(
+            {
+                "title": entity.title,
+            }
+        )
+        return res
     
     def get(self, id):
         cursor = self.status_collection.find({"_id": ObjectId(id)})
@@ -265,6 +302,3 @@ class OrderStatusDAOMongo(DAO):
             ) for c in cursor]
         return ords[0]
 
-
-class OrderItemDAOMongo(DAO):
-    pass

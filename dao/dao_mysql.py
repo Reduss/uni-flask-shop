@@ -5,15 +5,30 @@ from models import Product, Customer, Order, Category, Cart, OrderStatus
 from config import Config
 
 
-class CustomerDAOMySQL(DAO):
+class MysqlConnection():
+    def __init__(self) -> None:
+        self.db = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+
+class CustomerDAOMySQL(DAO, MysqlConnection):
     _sql_get_all = text('SELECT * FROM customer')
+    _sql_insert = text('INSERT INTO customer (first_name, last_name, phone_num, address) VALUES (:fname, :lname, :phone, :addr);')
     
     def __init__(self) -> None:
         super().__init__()
-        self.db = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+        
     
     def insert(self, c: Customer):
-        pass
+        with self.db.connect() as c:
+            c.execute(
+                self._sql_insert, 
+                {
+                    'fname': c.first_name, 
+                    'lname': c.last_name, 
+                    'phone': c.phone_num, 
+                    'addr': c.address
+                }
+            )
+            c.commit()
     
     def update(self, id, entity: Product):
         pass
@@ -29,7 +44,7 @@ class CustomerDAOMySQL(DAO):
     
 
 
-class ProductDAOMySQL(DAO):
+class ProductDAOMySQL(DAO, MysqlConnection):
     _sql_insert = text('INSERT INTO product (title, price, category_id, amount_in_stock) VALUES (:title, :price, :category_id, :amount);')
     _sql_update = text('UPDATE product SET title=:title, price=:price, category_id=:category_id, amount_in_stock=:amnt WHERE id=:id')
     _sql_delete = text('DELETE FROM product WHERE product.id = :id;')
@@ -49,7 +64,6 @@ class ProductDAOMySQL(DAO):
 
     def __init__(self) -> None:
         super().__init__()
-        self.db = create_engine(Config.SQLALCHEMY_DATABASE_URI)
     
     def insert(self, prod: Product):
         with self.db.connect() as c:
@@ -109,14 +123,13 @@ class ProductDAOMySQL(DAO):
         return None
 
 
-class CategoryDAOMySQL(DAO):
+class CategoryDAOMySQL(DAO, MysqlConnection):
     _sql_get_all = text('SELECT * FROM category')
     _sql_get_by_title= text('SELECT * FROM category WHERE title=:title')
     _sql_get = text('SELECT * FROM category WHERE id=:id')
     
     def __init__(self) -> None:
         super().__init__()
-        self.db = create_engine(Config.SQLALCHEMY_DATABASE_URI)
     
     def get_all(self):
         with self.db.engine.connect() as c:
@@ -137,7 +150,7 @@ class CategoryDAOMySQL(DAO):
 
 
 
-class OrderDAOMySQL(DAO):
+class OrderDAOMySQL(DAO, MysqlConnection):
     _sql_create = text('CALL PlaceOrder(:fname, :lname, :phone, :address, :prod_ids, :prod_amnts);')
     _sql_get_all = text("""
                         SELECT customer_order.id, customer_order.customer_id, customer_order.status_id, customer_order.order_date, customer_order.total_price
@@ -159,7 +172,6 @@ class OrderDAOMySQL(DAO):
     
     def __init__(self) -> None:
         super().__init__()
-        self.db = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
     def place_order(self, customer: Customer, cart: Cart):
         prod_ids = (str(p.id) for p in cart.prods.keys())
@@ -217,13 +229,12 @@ class OrderDAOMySQL(DAO):
         return orders
 
 
-class OrderStatusDAOMySQL(DAO):
+class OrderStatusDAOMySQL(DAO, MysqlConnection):
     _sql_get = text('SELECT * FROM order_status WHERE id=:id')
     _sql_get_all = text('SELECT * FROM order_status')
     
     def __init__(self) -> None:
         super().__init__()
-        self.db = create_engine(Config.SQLALCHEMY_DATABASE_URI)
     
     def get(self, id):
         with self.db.engine.connect() as c:
