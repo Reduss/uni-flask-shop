@@ -1,5 +1,6 @@
-from dao import DAOFactory, FactoryType
-from models import Product, Customer
+from typing import List
+from dao.factory import FactoryType, DAOFactory
+from models import Product, Customer, Order
 
 
 class DBMigrationTool():
@@ -39,7 +40,7 @@ class DBMigrationTool():
             mysql_customers = customer_dao_mysql.get_all()
             for entry in mysql_customers:
                 mongo_insert_result = customer_dao_mongo.insert(entry) 
-                customers_ids_map[mongo_insert_result.inserted_id] = entry.id
+                customers_ids_map[entry.id] = str(mongo_insert_result.inserted_id)
             
             print('[mysql -> mongo]: - Migrating customers: FINISHED.')
             
@@ -63,7 +64,7 @@ class DBMigrationTool():
             mysql_prods = prod_dao_mysql.get_all()
             for entry in mysql_prods:
                 mongo_insert_result = prod_dao_mongo.insert(entry) 
-                prod_ids_map[mongo_insert_result.inserted_id] = entry.id
+                prod_ids_map[entry.id] = str(mongo_insert_result.inserted_id)
             
             print('[mysql -> mongo]: - Migrating products: FINISHED.')
             
@@ -75,7 +76,7 @@ class DBMigrationTool():
             mysql_statues = status_dao_mysql.get_all()
             for entry in mysql_statues:
                 mongo_insert_result = status_dao_mongo.insert(entry) 
-                statuses_ids_map[mongo_insert_result.inserted_id] = entry.id 
+                statuses_ids_map[entry.id] = mongo_insert_result.inserted_id 
             
             print('[mysql -> mongo]: - Migrating statuses: FINISHED.')
             
@@ -84,10 +85,22 @@ class DBMigrationTool():
             print('[mysql -> mongo]: - Migrating orders...')
             
             order_ids_map = {}
-            mysql_orders = order_dao_mysql.get_all()
+            mysql_orders: List[Order] = order_dao_mysql.get_all()
+
+            
+            
             for entry in mysql_orders:
+                # remap customer's mysql ids to mongo ids
+                if entry.customer.id in customers_ids_map.keys():
+                    entry.customer.id = customers_ids_map[entry.customer.id]
+                
+                #remap products mysql ids to mongo ids
+                for prod, amount in entry.products.items():
+                    prod.id = prod_ids_map.get(prod.id)
+                
+                
                 mongo_insert_result = order_dao_mongo.insert(entry) 
-                order_ids_map[mongo_insert_result.inserted_id] = entry.id 
+                order_ids_map[entry.id] = mongo_insert_result.inserted_id
             
             print('[mysql -> mongo]: - Migrating orders: FINISHED.')
             
@@ -100,4 +113,3 @@ class DBMigrationTool():
 
     def migrate_to_mysql():
         pass
-    

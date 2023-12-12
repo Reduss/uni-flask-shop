@@ -45,7 +45,6 @@ class Order:
             status: {self.status}; 
             date: {self.order_date}; 
             price: {self.total_price}; 
-            category: {self.category};
             customer: {self.customer};
             prods: {self.products}"""
 

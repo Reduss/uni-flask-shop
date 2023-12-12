@@ -212,7 +212,7 @@ class OrderDAOMySQL(DAO, MysqlConnection):
                 id=r[0],
                 customer=list(filter(lambda c: c.id == r[1], customers))[0],
                 status=s_dao.get(r[2]).title,
-                order_date=r[-2],
+                order_date=str(r[-2]),
                 total_price=r[-1],
                 products= {}
             )
@@ -225,7 +225,7 @@ class OrderDAOMySQL(DAO, MysqlConnection):
                 prod.price = ent[-2]
                 ord.products[prod] = ent[-1]
             orders.append(ord)
-            
+        print(f'ORDERS FETCHED')
         return orders
 
 

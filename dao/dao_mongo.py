@@ -167,13 +167,21 @@ class OrderDAOMongo(DAO, MongoConnection):
         self.customer_dao = CustomerDAOMongo()
     
     def insert(self, entity: Order):
+        products = []
+        for k, v in entity.products.items():
+            products.append(
+                { 
+                    "product_id" : k.id,
+                    "amount" : v,
+                    "price" : k.price,
+                })
         res = self.order_collection.insert_one(
             {
-                "customer_id": entity.customer.id,
-                "status_id": entity.status.id,
-                "order_date": entity.date,
+                "customer_id": str(entity.customer.id),
+                "status_id":  self.status_dao.get_by_title("New").id,
+                "order_date": str(entity.order_date),
                 "total_price": entity.total_price,
-                "products": entity.products,
+                "products": products,
             }
         )
         return res
@@ -251,12 +259,8 @@ class OrderDAOMongo(DAO, MongoConnection):
                 products = {},
             )
             
-            print('ORD CUSTOMER =================')
-            # print(ord.customer)
             for p in c["products"]:
-                print(p.values())
                 prod = self.product_dao.get(p['product_id'])
-                print(prod)
                 prod.price = p["price"]
                 amount = p["amount"]
                 ord.products[prod] = amount
