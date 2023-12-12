@@ -69,7 +69,6 @@ class ProductDAOMySQL(DAO):
         with self.db.connect() as c:
             try:
                 cat_id = c.execute(self._sql_get_cat_by_name, {'category': entity.category}).fetchone()[0]
-                print(f'CATEGORY UPDATING {cat_id}')
                 c.execute(
                     self._sql_update, 
                     {

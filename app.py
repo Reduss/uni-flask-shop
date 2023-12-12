@@ -13,7 +13,7 @@ app.config.from_object(Config)
 
 cart = Cart()
 
-factory = DAOFactory(FactoryType.MYSQL)
+factory = DAOFactory(FactoryType.MONGO)
 product_dao = factory.get_product_dao()
 category_dao = factory.get_category_dao()
 
@@ -21,12 +21,25 @@ customer_dao = factory.get_customer_dao()
 order_dao = factory.get_order_dao()
 status_dao = factory.get_order_status_dao()
 
+mon_f = DAOFactory(FactoryType.MONGO)
+
+prod_dao_mongo = mon_f.get_product_dao()
+
+
 @app.route('/')
 def index():
     prods = product_dao.get_all()
     available_prods = list(filter(lambda p: p.amount_in_stock > 0, prods))
     
     return render_template('index.html', products=available_prods,)
+
+@app.route('/m')
+def index_mongo():
+    prods = prod_dao_mongo.get_all()
+    available_prods = list(filter(lambda p: p.amount_in_stock > 0, prods))
+    
+    return render_template('index.html', products=available_prods)
+
 
 
 @app.route('/cart', methods = ['GET', 'POST'])
@@ -36,7 +49,7 @@ def cart_view():
     print('CART==========')
     print([l for l in cart.prods])
     
-    if cust_form.validate_on_submit() and cart.prods.__len__() > 0:        
+    if cust_form.validate_on_submit() and cart.prods.__len__() > 0:
         c = Customer(
             id=-1,
             f_name=cust_form.f_name.data,
@@ -55,20 +68,20 @@ def cart_view():
     return render_template('cart.html', cart=cart, products=prods, form=cust_form)
 
 
-@app.route('/add_to_cart/<int:product_id>/<int:quantity>')
+@app.route('/add_to_cart/<string:product_id>/<int:quantity>')
 def add_to_cart(product_id, quantity):
     cart.add_product(product_dao.get(product_id), quantity)
     return redirect(url_for('index'))
 
 
-@app.route('/cart_inc/<int:product_id>/<int:quantity>')
+@app.route('/cart_inc/<string:product_id>/<int:quantity>')
 def cart_increase_amount(product_id, quantity):
     cart.inc(product_dao.get(product_id), quantity)
     
     return redirect(url_for('cart_view'))
 
 
-@app.route('/cart_dec/<int:product_id>/<int:quantity>')
+@app.route('/cart_dec/<string:product_id>/<int:quantity>')
 def cart_decrease_amount(product_id, quantity):
     cart.remove_product(product_dao.get(product_id), quantity)
     prods = product_dao.get_all()
@@ -106,7 +119,7 @@ def admin_products():
     return render_template('admin/products.html', products=prods, categories=cats ,form=form)
 
 
-@app.route('/admin/products/update/<int:product_id>', methods = ['GET', 'POST'])
+@app.route('/admin/products/update/<string:product_id>', methods = ['GET', 'POST'])
 def admin_product_update(product_id):
     
     prod_to_upd = product_dao.get(product_id)
