@@ -178,7 +178,7 @@ class OrderDAOMongo(DAO, MongoConnection):
         res = self.order_collection.insert_one(
             {
                 "customer_id": str(entity.customer.id),
-                "status_id":  self.status_dao.get_by_title("New").id,
+                "status_id":  self.status_dao.get_by_title(entity.status).id,
                 "order_date": str(entity.order_date),
                 "total_price": entity.total_price,
                 "products": products,
@@ -187,10 +187,6 @@ class OrderDAOMongo(DAO, MongoConnection):
         return res
     
     def place_order(self,customer: Customer, cart: Cart):
-        
-        # insert customer
-        # insert order
-
         with self.client.start_session() as session:
             session.start_transaction(write_concern=WriteConcern('majority'))
             try:
@@ -290,7 +286,7 @@ class OrderStatusDAOMongo(DAO, MongoConnection):
         return st[0]
     
     def get_all(self):
-        cursor = self.category_collection.find()
+        cursor = self.status_collection.find()
         st = [OrderStatus(
             id=str(c['_id']), 
             title=c['title'], 
