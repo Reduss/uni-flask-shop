@@ -29,7 +29,7 @@
             <th>Amount</th>
             <th>Amount available</th>
         </tr>
-        {% for prod, amount in cart.get_items() %}
+        {% for prod, amount in cart.prods.items() %}
         <tr>
             <td> <a href="{{ url_for('cart_increase_amount', product_id=prod.id, quantity=1) }}"> Amount+</a> </td>
             <td> <a href="{{ url_for('cart_decrease_amount', product_id=prod.id, quantity=1) }}"> Amount-</a> </td>

@@ -25,6 +25,9 @@ class Customer:
         self.last_name = l_name
         self.phone_num = phone_num
         self.address = address
+    
+    def __repr__(self) -> str:
+        return f'Customer object: Id: {self.id}; fname: {self.first_name}; lname: {self.last_name}'
 
 
 class Order:
@@ -65,9 +68,6 @@ class OrderStatus:
 class Cart():
     def __init__(self) -> None:
         self.prods = {}
-    
-    def get_items(self):
-        return self.prods.items()
     
     def add_product(self, prod: Product, amount):
         if prod not in self.prods:

@@ -46,8 +46,6 @@ def index_mongo():
 def cart_view():
     cust_form = CustomerInfoForm()
     prods = product_dao.get_all()
-    print('CART==========')
-    print([l for l in cart.prods])
     
     if cust_form.validate_on_submit() and cart.prods.__len__() > 0:
         c = Customer(
@@ -104,12 +102,12 @@ def admin_products():
     form.category.choices = [(cat.id, cat.title) for cat in cats or []]
     
     if form.validate_on_submit():
-        cat_val = dict(form.category.choices).get(int(form.category.data))
+        # cat_val = dict(form.category.choices).get(int(form.category.data))
         prod = Product(
             id=-1,
             title=form.title.data,
             price=form.price.data,
-            category=cat_val,
+            category=category_dao.get(form.category.data).title,
             amount_in_stock=form.amount.data,
         )
         product_dao.insert(prod)

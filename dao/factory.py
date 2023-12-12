@@ -52,7 +52,7 @@ class MongoDAOFactory(AbsDAOFactory):
         return ProductDAOMongo()
 
     def get_order_dao(self):
-        return OrderDAOMongo
+        return OrderDAOMongo()
     
     def get_category_dao(self):
         return CategoryDAOMongo()

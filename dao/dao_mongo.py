@@ -1,16 +1,27 @@
 from dao.dao import DAO
 from config import Config
-from models import Product, Order, Customer, OrderStatus, Category
+from models import Product, Order, Customer, OrderStatus, Category, Cart
 
 from bson import ObjectId
 from pymongo import MongoClient
-
+from pymongo.write_concern import WriteConcern
+from datetime import datetime
 
 class CustomerDAOMongo(DAO):
     def __init__(self) -> None:
         super().__init__()
         self.db = MongoClient(Config.MONGO_URI)['sdb_shop']
         self.customer_collection = self.db['customer']
+    
+    def insert(self, customer: Customer):
+        self.customer_collection.insert_one(
+            {
+                "first_name": customer.first_name,
+                "last_name": customer.last_name,
+                "phone_num": customer.phone_num,
+                "addr": customer.address
+            }
+        )
     
     def get_all(self):
         cursor = self.customer_collection.find()
@@ -21,8 +32,20 @@ class CustomerDAOMongo(DAO):
             l_name=c['last_name'], 
             phone_num=c['phone_num'], 
             address=c['addr']
-            ) for c in cursor]
+        ) for c in cursor]
         return customers
+    
+    def get(self, id):
+        cursor = self.customer_collection.find({"_id": ObjectId(id)})
+        
+        cust = [Customer(
+            id=str(c['_id']), 
+            f_name=c['first_name'], 
+            l_name=c['last_name'], 
+            phone_num=c['phone_num'], 
+            address=c['addr']
+        ) for c in cursor]
+        return cust[0]
 
 
 class ProductDAOMongo(DAO):
@@ -30,27 +53,46 @@ class ProductDAOMongo(DAO):
         super().__init__()
         self.db = MongoClient(Config.MONGO_URI)['sdb_shop']
         self.product_collection = self.db['product']
+        self.category_dao = CategoryDAOMongo()
     
-    def save(self, entity):
-        pass
+    def insert(self, entity):
+        self.product_collection.insert_one(
+            {
+                "title": entity.title,
+                "price": float(entity.price),
+                "amount_in_stock": entity.amount_in_stock,
+                "category_id": self.category_dao.get_by_title(entity.category).id
+            }
+        )
     
-    def update(self, id, entity):
-        
-        # TODO: impl update
-        pass
+    def update(self, id, entity: Product):
+        self.product_collection.update_one(
+            { 
+                "_id": ObjectId(id)
+            },
+            { 
+                '$set' : 
+                {
+                    "title": entity.title,
+                    "price": float(entity.price),
+                    "amount_in_stock": entity.amount_in_stock,
+                    "category_id": self.category_dao.get_by_title(entity.category).id
+                }
+            }
+            
+        )
     
     def delete(self, id):
         pass
     
     def get_all(self):
         cursor = self.product_collection.find()
-        cat_dao = CategoryDAOMongo()
         
         prods = [Product(
             id=str(c['_id']), 
             title=c['title'], 
             price=float(c['price']), 
-            category=cat_dao.get(c['category_id']).title, 
+            category=self.category_dao.get(c['category_id']).title, 
             amount_in_stock=int(c['amount_in_stock'])
             ) for c in cursor]
         return prods
@@ -62,7 +104,7 @@ class ProductDAOMongo(DAO):
             id=str(c['_id']), 
             title=c['title'], 
             price=float(c['price']), 
-            category=c['category'], 
+            category=self.category_dao.get(c['category_id']).title, 
             amount_in_stock=int(c['amount_in_stock'])
             ) for c in cursor]
         return prods[0]
@@ -103,12 +145,126 @@ class CategoryDAOMongo(DAO):
 
 
 class OrderDAOMongo(DAO):
-    pass
+    def __init__(self) -> None:
+        super().__init__()
+        self.client = MongoClient(Config.MONGO_URI)
+        self.db = self.client['sdb_shop']
+        self.order_collection = self.db['order']
+        self.status_dao = OrderStatusDAOMongo()
+        self.product_dao = ProductDAOMongo()
+        self.customer_dao = CustomerDAOMongo()
+    
+    def place_order(self,customer: Customer, cart: Cart):
+        
+        # insert customer
+        # insert order
+
+        with self.client.start_session() as session:
+            session.start_transaction(write_concern=WriteConcern('majority'))
+            try:
+                # insret customer
+                self.customer_dao.insert(customer)
+                
+                # insert order
+                cust_id = self.customer_dao.get_all()[-1].id
+                order_date = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                total_price = sum(p.price*a for p, a in cart.prods.items())
+                products = []
+                for k, v in cart.prods.items():
+                    products.append(
+                        { 
+                            "product_id" : k.id,
+                            "amount" : v,
+                            "price" : k.price,
+                        })
+                
+                res = self.order_collection.insert_one(
+                    {
+                        'customer_id': cust_id,
+                        'status_id': self.status_dao.get_by_title("New").id,
+                        'order_date': order_date,
+                        'total_price': total_price,
+                        'products': products
+                    }
+                )
+                
+                # update stock product amount 
+                for k, v in cart.prods.items():
+                    p = Product(
+                        id=k.id,
+                        title=k.title,
+                        price=k.price,
+                        category=k.category,
+                        amount_in_stock=k.amount_in_stock - v,
+                    )
+                    self.product_dao.update(k.id, p)
+                
+                
+                session.commit_transaction()
+            except Exception as e:
+                session.abort_transaction()
+                print(f"Error while creating order: {e}")
+            finally:
+                session.end_session()
+    
+    
+    def get_all(self):
+        cursor = self.order_collection.find()
+        
+        orders = []
+        for c in cursor:
+            ord = Order(
+                id = str(c["_id"]),
+                customer = self.customer_dao.get(c["customer_id"]),
+                status = self.status_dao.get(c["status_id"]).title,
+                order_date = c["order_date"],
+                total_price = c["total_price"],
+                products = {},
+            )
+            
+            print('ORD CUSTOMER =================')
+            # print(ord.customer)
+            for p in c["products"]:
+                print(p.values())
+                prod = self.product_dao.get(p['product_id'])
+                print(prod)
+                prod.price = p["price"]
+                amount = p["amount"]
+                ord.products[prod] = amount
+            orders.append(ord)
+        return orders
+
+class OrderStatusDAOMongo(DAO):
+    def __init__(self) -> None:
+        super().__init__()
+        self.db = MongoClient(Config.MONGO_URI)['sdb_shop']
+        self.status_collection = self.db['order_status']
+    
+    def get(self, id):
+        cursor = self.status_collection.find({"_id": ObjectId(id)})
+        st = [OrderStatus(
+            id=str(c['_id']), 
+            title=c['title'], 
+            ) for c in cursor]
+        return st[0]
+    
+    def get_all(self):
+        cursor = self.category_collection.find()
+        st = [OrderStatus(
+            id=str(c['_id']), 
+            title=c['title'], 
+            ) for c in cursor]
+        return st
+    
+    def get_by_title(self, title):
+        cursor = self.status_collection.find({"title": title})
+        
+        ords = [OrderStatus(
+            id=str(c['_id']), 
+            title=c['title'], 
+            ) for c in cursor]
+        return ords[0]
 
 
 class OrderItemDAOMongo(DAO):
-    pass
-
-
-class OrderStatusDAOMongo(DAO):
     pass
