@@ -161,16 +161,11 @@ class DBMigrationTool():
                 # remap order.customer_id to mysql id's
                 if entry.customer.id in customers_ids_map.keys():
                     entry.customer.id = customers_ids_map.get(entry.customer.id)
-
-                
                 
                 # remap order.products id's to mysql id's
                 for prod in entry.products.keys():
                     if prod.id in prods_ids_map.keys():
                         prod.id = prods_ids_map.get(prod.id)
-                
-                for prod in entry.products.keys():
-                    print(prod)
                 
                 insert_result = self.order_dao_mysql.insert_with_items(entry)
                 ords_ids_map[entry.id] = str(insert_result)
