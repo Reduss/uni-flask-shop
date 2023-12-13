@@ -29,6 +29,10 @@ class Customer:
     def __repr__(self) -> str:
         return f'Customer object: Id: {self.id}; fname: {self.first_name}; lname: {self.last_name}; phone: {self.phone_num}; address: {self.address};'
 
+    def __eq__(self, other):
+        if isinstance(other, Product):
+            return self.first_name == other.first_name
+        return False
 
 class Order:
     def __init__(self, id, customer, status, order_date, total_price, products={}) -> None:

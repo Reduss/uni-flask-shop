@@ -90,7 +90,6 @@ def admin_products():
     form.category.choices = [(cat.id, cat.title) for cat in cats or []]
     
     if form.validate_on_submit():
-        # cat_val = dict(form.category.choices).get(int(form.category.data))
         prod = Product(
             id=-1,
             title=form.title.data,

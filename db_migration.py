@@ -176,3 +176,7 @@ class DBMigrationTool():
             
         except Exception as e:
             print(f'Error migrating to mysql: {e}')
+
+
+migration_tool = DBMigrationTool()
+migration_tool.migrate_to_mysql()

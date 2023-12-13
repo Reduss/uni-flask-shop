@@ -10,21 +10,21 @@ class FactoryType(Enum):
     MONGO = 1
 
 
-class AbsDAOFactory(ABC):
-    @abstractmethod
-    def get_customer_dao(self):
-        pass
+# class AbsDAOFactory(ABC):
+#     @abstractmethod
+#     def get_customer_dao(self):
+#         pass
     
-    @abstractmethod
-    def get_product_dao(self):
-        pass
+#     @abstractmethod
+#     def get_product_dao(self):
+#         pass
 
-    @abstractmethod
-    def get_order_dao(self):
-        pass
+#     @abstractmethod
+#     def get_order_dao(self):
+#         pass
 
 
-class MySQLDAOFactory(AbsDAOFactory):
+class MySQLDAOFactory():
     def get_customer_dao(self):
         return CustomerDAOMySQL()
     
@@ -41,7 +41,7 @@ class MySQLDAOFactory(AbsDAOFactory):
         return OrderStatusDAOMySQL()
 
 
-class MongoDAOFactory(AbsDAOFactory):
+class MongoDAOFactory():
     def __init__(self) -> None:
         super().__init__()
 
