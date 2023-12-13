@@ -1,0 +1,42 @@
+---------mysql select by full name no index---------
+Results:
+- # of entities: 100, time elapsed: 0.0 seconds.
+- # of entities: 1000, time elapsed: 0.0010020732879638672 seconds.
+- # of entities: 10000, time elapsed: 0.004463911056518555 seconds.
+- # of entities: 50000, time elapsed: 0.01851487159729004 seconds.
+- # of entities: 100000, time elapsed: 0.04616522789001465 seconds.
+Results:
+- # of entities: 100, time elapsed: 0.0019998550415039062 seconds.
+- # of entities: 1000, time elapsed: 0.003017902374267578 seconds.
+- # of entities: 10000, time elapsed: 0.011121511459350586 seconds.
+- # of entities: 50000, time elapsed: 0.0590360164642334 seconds.
+- # of entities: 100000, time elapsed: 0.10550665855407715 seconds.
+
+---------mongo select by full name no index---------
+Results:
+- # of entities: 100, time elapsed: 0.017029762268066406 seconds.
+- # of entities: 1000, time elapsed: 0.047414302825927734 seconds.
+- # of entities: 10000, time elapsed: 0.0374908447265625 seconds.
+- # of entities: 50000, time elapsed: 0.5100600719451904 seconds.
+- # of entities: 100000, time elapsed: 0.3338134288787842 seconds.
+Results:
+- # of entities: 100, time elapsed: 0.018105506896972656 seconds.
+- # of entities: 1000, time elapsed: 0.1951465606689453 seconds.
+- # of entities: 10000, time elapsed: 0.031549692153930664 seconds.
+- # of entities: 50000, time elapsed: 0.0970766544342041 seconds.
+- # of entities: 100000, time elapsed: 0.15419960021972656 seconds.
+
+---------mysql select by full name index(lname, fname)---------
+Results:
+- # of entities: 100, time elapsed: 0.0009987354278564453 seconds.
+- # of entities: 1000, time elapsed: 0.002999544143676758 seconds.
+- # of entities: 10000, time elapsed: 0.008991241455078125 seconds.
+- # of entities: 50000, time elapsed: 0.03800511360168457 seconds.
+- # of entities: 100000, time elapsed: 0.07221031188964844 seconds.
+---------mongo select by full name index(lname, fname)---------
+Results:
+- # of entities: 100, time elapsed: 0.01900005340576172 seconds.
+- # of entities: 1000, time elapsed: 0.1910264492034912 seconds.
+- # of entities: 10000, time elapsed: 0.02499985694885254 seconds.
+- # of entities: 50000, time elapsed: 0.1145169734954834 seconds.
+- # of entities: 100000, time elapsed: 0.4985675811767578 seconds.

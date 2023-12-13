@@ -7,6 +7,7 @@ from pymongo import MongoClient
 from pymongo.write_concern import WriteConcern
 from datetime import datetime
 
+
 class MongoConnection():
     def __init__(self) -> None:
         self.client = MongoClient(Config.MONGO_URI)
@@ -29,6 +30,25 @@ class CustomerDAOMongo(DAO, MongoConnection):
         )
         return res
     
+    def update(self, id, entity: Customer):
+        self.customer_collection.update_one(
+            { 
+                "_id": ObjectId(id)
+            },
+            { 
+                '$set' : 
+                {
+                    "first_name": entity.first_name,
+                    "last_name": entity.last_name,
+                    "phone_num": entity.phone_num,
+                    "addr": entity.address
+                }
+            }
+        )
+    
+    def delete_all(self):
+        return self.customer_collection.delete_many({})
+    
     def get_all(self):
         cursor = self.customer_collection.find()
         
@@ -42,6 +62,7 @@ class CustomerDAOMongo(DAO, MongoConnection):
         return customers
     
     def get(self, id):
+        print(f'MONGO ID TO GET: {id}')
         cursor = self.customer_collection.find({"_id": ObjectId(id)})
         
         cust = [Customer(
@@ -52,6 +73,43 @@ class CustomerDAOMongo(DAO, MongoConnection):
             address=c['addr']
         ) for c in cursor]
         return cust[0]
+    
+    def get_by_fname(self, fname):
+        cursor = self.customer_collection.find({"first_name": fname})
+        cust = [Customer(
+            id=str(c['_id']), 
+            f_name=c['first_name'], 
+            l_name=c['last_name'], 
+            phone_num=c['phone_num'], 
+            address=c['addr']
+        ) for c in cursor]
+        return cust[0]
+
+    def get_random(self):
+        cursor = self.customer_collection.aggregate([{"$sample": {"size": 1}}])
+        
+        cust = [Customer(
+            id=str(c['_id']), 
+            f_name=c['first_name'], 
+            l_name=c['last_name'], 
+            phone_num=c['phone_num'], 
+            address=c['addr']
+        ) for c in cursor]
+        return cust[0]
+
+    def get_by_full_name(self, fname, lname):
+        cursor = self.customer_collection.find({"first_name": fname, "last_name": lname})
+        cust = [Customer(
+            id=str(c['_id']), 
+            f_name=c['first_name'], 
+            l_name=c['last_name'], 
+            phone_num=c['phone_num'], 
+            address=c['addr']
+        ) for c in cursor]
+        return cust[0]
+
+    def get_entities_count(self):
+        return self.customer_collection.count_documents({})
 
 
 class ProductDAOMongo(DAO, MongoConnection):

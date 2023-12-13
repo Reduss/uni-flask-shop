@@ -27,7 +27,7 @@ class Customer:
         self.address = address
     
     def __repr__(self) -> str:
-        return f'Customer object: Id: {self.id}; fname: {self.first_name}; lname: {self.last_name}'
+        return f'Customer object: Id: {self.id}; fname: {self.first_name}; lname: {self.last_name}; phone: {self.phone_num}; address: {self.address};'
 
 
 class Order:

@@ -11,9 +11,17 @@ class MysqlConnection():
 
 class CustomerDAOMySQL(DAO, MysqlConnection):
     _sql_get_all = text('SELECT * FROM customer')
+    _sql_get = text('SELECT * FROM customer WHERE id=:id')
+    _sql_get_by_fname = text('SELECT * FROM customer WHERE first_name=:fname')
     _sql_insert = text("""INSERT INTO customer (first_name, last_name, phone_num, address) 
                        VALUES (:fname, :lname, :phone, :addr);""")
     _sql_last_id = text("SELECT LAST_INSERT_ID() AS last_id")
+    _sql_get_number_of_rows = text("SELECT COUNT(*) FROM customer;")
+    _sql_delete_all = text(""" TRUNCATE TABLE customer;""")
+    _sql_fcheck0 = text("SET FOREIGN_KEY_CHECKS = 0;")
+    _sql_fcheck1 = text(" SET FOREIGN_KEY_CHECKS = 1;")
+    _sql_get_by_full_name = text('SELECT * FROM customer WHERE last_name=:last_name AND first_name=:first_name')
+    _sql_get_random = text('SELECT * FROM customer ORDER BY RAND() LIMIT 1;')
     
     def __init__(self) -> None:
         super().__init__()
@@ -40,11 +48,49 @@ class CustomerDAOMySQL(DAO, MysqlConnection):
     def delete(self, id):
         pass
     
+    def delete_all(self):
+        with self.db.engine.connect() as c:
+            c.execute(self._sql_fcheck0)
+            c.execute(self._sql_delete_all)
+            
+            
+            c.execute(self._sql_fcheck1)
+            c.commit()
+    
+    def get_random(self):
+        with self.db.engine.connect() as c:
+            res = c.execute(self._sql_get_random)
+        custs = [Customer(*r) for r in res.fetchall()]
+        return custs[0]
+    
+    def get(self, id):
+        with self.db.engine.connect() as c:
+            res = c.execute(self._sql_get, {'id': id})
+        custs = [Customer(*r) for r in res.fetchall()]
+        return custs[0]
+    
     def get_all(self):
         with self.db.engine.connect() as c:
             res = c.execute(self._sql_get_all)
         custs = [Customer(*r) for r in res.fetchall()]
         return custs
+
+    def get_by_fname(self, fname):
+        with self.db.engine.connect() as c:
+            res = c.execute(self._sql_get_by_fname, {'fname': fname})
+        custs = [Customer(*r) for r in res.fetchall()]
+        return custs[0]
+
+    def get_by_full_name(self, fname, lname):
+        with self.db.engine.connect() as c:
+            res = c.execute(self._sql_get_by_full_name, {'last_name': lname, 'first_name': fname,})
+        custs = [Customer(*r) for r in res.fetchall()]
+        return custs[0]
+    
+    def get_entities_count(self):
+        with self.db.connect() as c:
+            res = c.execute(self._sql_get_number_of_rows)
+        return res.scalar()
 
 
 class ProductDAOMySQL(DAO, MysqlConnection):
