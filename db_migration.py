@@ -179,4 +179,4 @@ class DBMigrationTool():
 
 
 migration_tool = DBMigrationTool()
-migration_tool.migrate_to_mysql()
+migration_tool.migrate_to_mongo()

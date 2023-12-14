@@ -1,5 +1,4 @@
 from enum import Enum
-from abc import ABC, abstractmethod
 
 from dao.dao_mysql import ProductDAOMySQL, CategoryDAOMySQL, CustomerDAOMySQL, OrderDAOMySQL, OrderStatusDAOMySQL
 from dao.dao_mongo import ProductDAOMongo, CategoryDAOMongo, CustomerDAOMongo, OrderDAOMongo, OrderStatusDAOMongo
@@ -8,20 +7,6 @@ from dao.dao_mongo import ProductDAOMongo, CategoryDAOMongo, CustomerDAOMongo, O
 class FactoryType(Enum):
     MYSQL = 0
     MONGO = 1
-
-
-# class AbsDAOFactory(ABC):
-#     @abstractmethod
-#     def get_customer_dao(self):
-#         pass
-    
-#     @abstractmethod
-#     def get_product_dao(self):
-#         pass
-
-#     @abstractmethod
-#     def get_order_dao(self):
-#         pass
 
 
 class MySQLDAOFactory():

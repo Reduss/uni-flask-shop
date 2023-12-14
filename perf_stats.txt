@@ -40,3 +40,16 @@ Results:
 - # of entities: 10000, time elapsed: 0.02499985694885254 seconds.
 - # of entities: 50000, time elapsed: 0.1145169734954834 seconds.
 - # of entities: 100000, time elapsed: 0.4985675811767578 seconds.
+
+- # of entities: 100, time elapsed: 0.019879817962646484 seconds.
+- # of entities: 1000, time elapsed: 0.060335636138916016 seconds.
+- # of entities: 10000, time elapsed: 0.04943132400512695 seconds.
+- # of entities: 50000, time elapsed: 0.060813188552856445 seconds.
+- # of entities: 100000, time elapsed: 0.07198381423950195 seconds.
+- # of entities: 500000, time elapsed: 0.1463453769683838 seconds.
+
+
+- # of entities: 100, time elapsed: 0.027704477310180664 seconds.
+- # of entities: 1000, time elapsed: 0.05343484878540039 seconds.
+- # of entities: 10000, time elapsed: 0.04837846755981445 seconds.
+- # of entities: 50000, time elapsed: 0.06356239318847656 seconds.

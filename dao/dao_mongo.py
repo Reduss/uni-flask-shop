@@ -21,9 +21,8 @@ class CustomerDAOMongo(DAO, MongoConnection):
         super().__init__()
         self.customer_collection = self.db['customer']
 
-    @catch_error("customer_insert")
     def insert(self, customer: Customer):
-        res = self.customer_collection.with_options(write_concern=WriteConcern(w='majority', wtimeout=1000)).insert_one(
+        res = self.customer_collection.with_options(write_concern=WriteConcern(w='majority', wtimeout=1000, j=True)).insert_one(
             {
                 "first_name": customer.first_name,
                 "last_name": customer.last_name,
@@ -49,11 +48,16 @@ class CustomerDAOMongo(DAO, MongoConnection):
             }
         )
     
-    @catch_error("customer_delete")
     def delete_all(self):
         return self.customer_collection.drop()
     
-    @catch_error("customer_get_all")
+    def insert_indexes(self):
+        self.customer_collection.create_index([('first_name', 1)])
+        self.customer_collection.create_index([('last_name', 1)])
+    
+    def get_indexes(self):
+        return self.customer_collection.index_information()
+    
     def get_all(self):
         cursor = self.customer_collection.find()
         
@@ -67,7 +71,6 @@ class CustomerDAOMongo(DAO, MongoConnection):
         return customers
     
     def get(self, id):
-        print(f'MONGO ID TO GET: {id}')
         cursor = self.customer_collection.find({"_id": ObjectId(id)})
         
         cust = [Customer(

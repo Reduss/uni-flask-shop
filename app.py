@@ -6,14 +6,13 @@ from dao.factory import DAOFactory, FactoryType
 from config import Config
 
 
-
 app = Flask(__name__)
 app.config.from_object(Config)
 
 
 cart = Cart()
 
-factory = DAOFactory(FactoryType.MYSQL)
+factory = DAOFactory(FactoryType.MONGO)
 product_dao = factory.get_product_dao()
 category_dao = factory.get_category_dao()
 

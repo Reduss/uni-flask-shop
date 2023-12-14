@@ -301,7 +301,6 @@ class OrderDAOMySQL(DAO, MysqlConnection):
         c_dao = CustomerDAOMySQL()
         p_dao = ProductDAOMySQL()
         s_dao = OrderStatusDAOMySQL()
-        print('in order dao')
         customers = c_dao.get_all()
         
         with self.db.engine.connect() as c:

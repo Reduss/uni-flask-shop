@@ -59,17 +59,11 @@ class DbPerformanceTester:
             elapsed_time = end_time - start_time
             return result, elapsed_time
         return wrapper
-        
 
-
-#
-#   === DB TESTING ===
-# 
 
 def run():
-
     ENTITY_AMOUNTS = [100, 1000, 10000, 50000, 100000]
-    DBMS_TYPE = FactoryType.MONGO
+    DBMS_TYPE = FactoryType.MYSQL
 
     db = DbPerformanceTester(DBMS_TYPE)
 
@@ -79,27 +73,23 @@ def run():
         db.generate_data_customer(amount)
 
     @DbPerformanceTester.time_elapsed_decor
-    def get_by_fname_check():
-        prod = db.get_random_customer()
-        print(f"- Looking for customer with fname={prod.first_name}...")
-        return db.dao_c.get_by_fname(prod.first_name)
-
-    @DbPerformanceTester.time_elapsed_decor
     def get_by_full_name_check():
         prod = db.get_random_customer()
         print(f"- Looking for the customer with fname={prod.first_name} and lname={prod.last_name}...")
         return db.dao_c.get_by_full_name(prod.first_name, prod.last_name)
-
-
 
     results = {}
 
     for amount in ENTITY_AMOUNTS:
         print(f'Querying {DBMS_TYPE} database')
         a, i_elapsed = init(amount)
+        # db.dao_c.insert_indexes()
+        # print(db.dao_c.get_indexes())
         print(f"{amount} objects created in {i_elapsed} seconds.")
+        
         print('Running tests...')
         prod, elapsed = get_by_full_name_check()
+        
         print(f'- Customer found: {prod}')
         results[amount] = elapsed
 

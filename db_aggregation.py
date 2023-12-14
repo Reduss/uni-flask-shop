@@ -5,7 +5,7 @@ from dao.dao_mongo import ProductDAOMongo
 dao = ProductDAOMongo()
 dbtool = DbPerformanceTester(FactoryType.MONGO)
 
-# dbtool.generate_data_prod(100)
+dbtool.generate_data_prod(100)
 
 
 
